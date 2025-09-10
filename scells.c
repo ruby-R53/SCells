@@ -4,6 +4,15 @@
 #include<unistd.h>
 #include<signal.h>
 
+typedef struct {
+	char* icon;
+	char* command;
+	unsigned int interval;
+	unsigned int signal;
+} Cell;
+
+#include "config.h"
+
 #if __has_include(<X11/Xlib.h>)
 #include<X11/Xlib.h>
 #define HAS_X
@@ -18,6 +27,7 @@
 #endif
 
 #define LENGTH(X)    (sizeof(X) / sizeof(X[0]))
+#define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 #define MIN(a, b)    ((a < b) ? a : b)
 
 #ifndef __OpenBSD__
@@ -45,36 +55,25 @@ static void (*writestatus) () = setroot;
 static void (*writestatus) () = pstdout;
 #endif
 
-typedef struct {
-	char* icon;
-	char* command;
-	unsigned int interval;
-	unsigned int signal;
-} Cell;
-
-#include "config.h"
-
-#define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
-
 static char statusbar[LENGTH(cells)][CMDLENGTH] = {0};
 static char statusstr[2][STATUSLENGTH];
 static int  statusContinue = 1;
 
 // opens process *cmd and stores output in *output
-void getcmd(const Cell *block, char *output) {
+void getcmd(const Cell *cell, char *output) {
 	// make sure status is the same until output is ready
 	char tempstatus[CMDLENGTH] = {0};
-	strcpy(tempstatus, block->icon);
-	FILE *cmdf = popen(block->command, "r");
+	strcpy(tempstatus, cell->icon);
+	FILE *cmdf = popen(cell->command, "r");
 
 	if (!cmdf)
 		return;
 
-	int i = strlen(block->icon);
-	fgets(tempstatus+i, CMDLENGTH-i-delimLen, cmdf);
+	int i = strlen(cell->icon);
+	fgets(tempstatus + i, CMDLENGTH - delimLen - i, cmdf);
 	i = strlen(tempstatus);
 
-	// if both the block and command output are not empty
+	// if both the cell and command output are not empty
 	if (i != 0) {
 		// only chop off newline if present at the end
 		i = (tempstatus[i-1] == '\n') ? i - 1 : i;
