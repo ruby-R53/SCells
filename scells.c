@@ -18,9 +18,7 @@
 #endif
 
 #define LENGTH(X)    (sizeof(X) / sizeof(X[0]))
-#define CMDLENGTH    50
 #define MIN(a, b)    ((a < b) ? a : b)
-#define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 
 #ifndef __OpenBSD__
 void dummysighandler(int num);
@@ -55,6 +53,8 @@ typedef struct {
 } Cell;
 
 #include "config.h"
+
+#define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 
 static char statusbar[LENGTH(cells)][CMDLENGTH] = {0};
 static char statusstr[2][STATUSLENGTH];
