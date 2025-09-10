@@ -33,7 +33,7 @@ void setupsignals();
 void sighandler(int signum);
 int  getstatus(char *str, char *last);
 void statusloop();
-void termhandler();
+void termhandler(int sig);
 void pstdout();
 
 #ifdef HAS_X
@@ -151,7 +151,7 @@ int setupX() {
 
 	screen = DefaultScreen(dpy);
 	root   = RootWindow(dpy, screen);
-	return 0;
+	return 1;
 }
 #endif
 
@@ -190,7 +190,7 @@ void sighandler(int signum) {
 	writestatus();
 }
 
-void termhandler() { statusContinue = 0; }
+void termhandler(int sig) { statusContinue = 0; }
 
 int main(int argc, char** argv) {
 	// Handle command line arguments
@@ -199,12 +199,6 @@ int main(int argc, char** argv) {
 			strncpy(delim, argv[++i], delimLen);
 		else if (!strcmp("-p", argv[i]))
 			writestatus = pstdout;
-		else
-			printf("Usage: %s <options>\n"
-				   "<options> may be one of:\n"
-			   	   "-d <char>  set cell delimiter to <char>\n"
-				   "-p         print output to stdout\n",
-				   argv[0]);
 	}
 
 #ifdef HAS_X

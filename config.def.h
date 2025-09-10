@@ -6,7 +6,7 @@
 static const Cell cells[] = {
 	// "[icon]", "[cmd]", "[upd. interval]", "[upd. sig.]"
 	{"", "date +'%a %b %d %X'",	1, 0},
-	//{"", "wpctl get-volume @DEFAULT_AUDIO_SINK@", 0, 10},
+	{"", "wpctl get-volume @DEFAULT_AUDIO_SINK@", 0, 10},
 };
 
 /* 
