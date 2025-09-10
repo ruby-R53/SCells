@@ -145,6 +145,7 @@ void setroot() {
 
 int setupX() {
 	dpy = XOpenDisplay(NULL);
+
 	if (!dpy) {
 		fprintf(stderr, "ERROR: failed to open display!\n");
 		return 1;
@@ -158,8 +159,7 @@ int setupX() {
 
 void pstdout() {
 	// Only write out if text has changed.
-	if (!getstatus(statusstr[0], statusstr[1]))
-		return;
+	if (!getstatus(statusstr[0], statusstr[1])) return;
 
 	printf("\r%s", statusstr[0]);
 	fflush(stdout);
@@ -174,13 +174,12 @@ void statusloop() {
 		getcmds(++i);
 		writestatus();
 
-		if (!statusContinue)
-			break;
+		if (!statusContinue) break;
 	}
 }
 
 #ifndef __OpenBSD__
-/* this signal handler should do nothing */
+// used to initialize all real-time signals
 void dummysighandler(int signum) { return; }
 #endif
 

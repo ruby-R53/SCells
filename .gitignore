@@ -1,5 +1,4 @@
 *.o
-*.gch
 config.h
 scells
 nohup.out

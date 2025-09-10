@@ -3,9 +3,9 @@ CC      := cc
 CFLAGS  := -pedantic -Wall -O2
 LDFLAGS := -lX11
 
-# FreeBSD (uncomment)
+# Uncomment to build on FreeBSD
 #LDFLAGS += -L/usr/local/lib -I/usr/local/include
-# OpenBSD (uncomment)
+# ···or on OpenBSD
 #LDFLAGS += -L/usr/X11R6/lib -I/usr/X11R6/include
 
 all: options scells
@@ -15,6 +15,7 @@ options:
 	@echo "CC      = ${CC}"
 	@echo "CFLAGS  = ${CFLAGS}"
 	@echo "LDFLAGS = ${LDFLAGS}"
+	@echo "PREFIX  = ${PREFIX}"
 
 scells: scells.c config.def.h config
 	${CC} -o scells scells.c ${CFLAGS} ${LDFLAGS}
@@ -23,7 +24,7 @@ config:
 	cp config.def.h $@.h
 
 clean:
-	rm -f *.o *.gch scells
+	rm -f *.o scells
 
 install: scells
 	mkdir -p ${DESTDIR}${PREFIX}/bin
