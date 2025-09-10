@@ -38,11 +38,11 @@ void pstdout();
 
 #ifdef HAS_X
 void   setroot();
-static void (*writestatus) () = setroot;
 static int setupX();
 static Display *dpy;
 static int screen;
 static Window root;
+static void (*writestatus) () = setroot;
 #else
 static void (*writestatus) () = pstdout;
 #endif
@@ -92,8 +92,8 @@ void getcmds(int time) {
 	const Cell* current;
 	for (unsigned int i = 0; i < LENGTH(cells); i++) {
 		current = cells + i;
-		if ((current->interval != 0 &&
-			time % current->interval == 0) || time == -1)
+		if ((current->interval != 0 && time % current->interval == 0) ||
+			time == -1)
 			getcmd(current, statusbar[i]);
 	}
 }
@@ -145,7 +145,7 @@ void setroot() {
 int setupX() {
 	dpy = XOpenDisplay(NULL);
 	if (!dpy) {
-		fprintf(stderr, "SCells: failed to open display\n");
+		fprintf(stderr, "ERROR: failed to open display!\n");
 		return 1;
 	}
 
@@ -160,7 +160,7 @@ void pstdout() {
 	if (!getstatus(statusstr[0], statusstr[1]))
 		return;
 
-	printf("%s\n", statusstr[0]);
+	printf("\r%s", statusstr[0]);
 	fflush(stdout);
 }
 
@@ -190,14 +190,19 @@ void sighandler(int signum) {
 	writestatus();
 }
 
-void termhandler(int sig) { statusContinue = 0; }
+void termhandler(int sig) {
+	statusContinue = 0;
+	// add a newline in case we're
+	// printing to stdout
+	if (writestatus == pstdout) printf("\n");
+}
 
 int main(int argc, char** argv) {
 	// Handle command line arguments
 	for (int i = 0; i < argc; i++) {
-		if (!strcmp("-d", argv[i]))
+		if (!strcmp("-d", argv[i])) // setting delimiter character?
 			strncpy(delim, argv[++i], delimLen);
-		else if (!strcmp("-p", argv[i]))
+		else if (!strcmp("-p", argv[i])) // printing to stdout?
 			writestatus = pstdout;
 	}
 
