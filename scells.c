@@ -17,7 +17,7 @@
 #define SIGMINUS     SIGRTMIN
 #endif
 
-#define LENGTH(X)    (sizeof(X) / sizeof (X[0]))
+#define LENGTH(X)    (sizeof(X) / sizeof(X[0]))
 #define CMDLENGTH    50
 #define MIN(a, b)    ((a < b) ? a : b)
 #define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
@@ -76,8 +76,8 @@ void getcmd(const Cell *block, char *output) {
 
 	// if both the block and command output are not empty
 	if (i != 0) {
-		// only chop off newline if one is present at the end
-		i = tempstatus[i-1] == '\n' ? i-1 : i;
+		// only chop off newline if present at the end
+		i = (tempstatus[i-1] == '\n') ? i - 1 : i;
 		if (delim[0] != '\0')
 			strncpy(tempstatus+i, delim, delimLen);
 		else
@@ -90,7 +90,8 @@ void getcmd(const Cell *block, char *output) {
 
 void getcmds(int time) {
 	const Cell* current;
-	for (unsigned int i = 0; i < LENGTH(cells); i++) {
+
+	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		current = cells + i;
 		if ((current->interval != 0 && time % current->interval == 0) ||
 			time == -1)
@@ -100,7 +101,7 @@ void getcmds(int time) {
 
 void getsigcmds(unsigned int signal) {
 	const Cell *current;
-	for (unsigned int i = 0; i < LENGTH(cells); i++) {
+	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		current = cells + i;
 		if (current->signal == signal)
 			getcmd(current, statusbar[i]);
@@ -110,11 +111,11 @@ void getsigcmds(unsigned int signal) {
 void setupsignals() {
 #ifndef __OpenBSD__
 	// initialize all real time signals with the dummy handler
-    for (int i = SIGRTMIN; i <= SIGRTMAX; i++)
+    for (int i = SIGRTMIN; i <= SIGRTMAX; ++i)
         signal(i, dummysighandler);
 #endif
 
-	for (unsigned int i = 0; i < LENGTH(cells); i++) {
+	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		if (cells[i].signal > 0)
 			signal(SIGMINUS+cells[i].signal, sighandler);
 	}
@@ -125,7 +126,7 @@ int getstatus(char *str, char *last) {
 	strcpy(last, str);
 	str[0] = '\0';
 
-	for (unsigned int i = 0; i < LENGTH(cells); i++)
+	for (unsigned int i = 0; i < LENGTH(cells); ++i)
 		strcat(str, statusbar[i]);
 
 	str[strlen(str) - strlen(delim)] = '\0';
@@ -170,7 +171,7 @@ void statusloop() {
 	getcmds(-1);
 
 	while (1) {
-		getcmds(i++);
+		getcmds(++i);
 		writestatus();
 
 		if (!statusContinue)
@@ -197,7 +198,7 @@ void termhandler(int sig) {
 
 int main(int argc, char** argv) {
 	// Handle command line arguments
-	for (int i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; ++i) {
 		if (!strcmp("-d", argv[i])) // setting delimiter character?
 			strncpy(delim, argv[++i], delimLen);
 		else if (!strcmp("-p", argv[i])) // printing to stdout?
