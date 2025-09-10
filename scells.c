@@ -175,8 +175,6 @@ void statusloop() {
 
 		if (!statusContinue)
 			break;
-
-		sleep(1.0);
 	}
 }
 
