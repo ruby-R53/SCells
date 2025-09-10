@@ -32,6 +32,7 @@ typedef struct {
 
 #define ERROR(MSG)   \
 	(fprintf(stderr, "\033[1;31mERROR\033[37m:\033[m %s\n", MSG))
+// highlight it with bright red :)
 
 #ifndef __OpenBSD__
 void dummysighandler(int num);
@@ -47,11 +48,11 @@ void termhandler(int sig);
 void pstdout();
 
 #ifdef HAS_X
-void   setroot();
-static int setupX();
 static Display *dpy;
-static int screen;
 static Window root;
+void   setroot();
+static int screen;
+static int setupX();
 static void (*writestatus) () = setroot;
 #else
 static void (*writestatus) () = pstdout;
@@ -98,7 +99,7 @@ void getcmds(unsigned int time, unsigned int signal) {
 			(time == -1 && !signal))
 			getcmd(current, statusbar[i]);
 		else if (current->signal == signal)
-				getcmd(current, statusbar[i]);
+			getcmd(current, statusbar[i]);
 	}
 }
 
@@ -178,7 +179,6 @@ void dummysighandler(int signum) { return; }
 #endif
 
 void sighandler(int signum) {
-	//getsigcmds(signum - SIGPLUS);
 	getcmds(0, signum - SIGPLUS);
 	writestatus();
 }
