@@ -30,6 +30,9 @@ typedef struct {
 #define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 #define MIN(a, b)    ((a < b) ? a : b)
 
+#define ERROR(MSG)   \
+	(fprintf(stderr, "\033[1;31mERROR\033[37m:\033[m %s\n", MSG))
+
 #ifndef __OpenBSD__
 void dummysighandler(int num);
 #endif
@@ -80,7 +83,7 @@ void getcmd(const Cell *cell, char *output) {
 		if (delim[0] != '\0')
 			strncpy(tempstatus+i, delim, delimLen);
 		else
-			tempstatus[i++] = '\0';
+			tempstatus[++i] = '\0';
 	}
 
 	strcpy(output, tempstatus);
@@ -116,7 +119,7 @@ void setupsignals() {
 
 	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		if (cells[i].signal > 0)
-			signal(SIGMINUS+cells[i].signal, sighandler);
+			signal(SIGMINUS + cells[i].signal, sighandler);
 	}
 
 }
@@ -146,8 +149,8 @@ int setupX() {
 	dpy = XOpenDisplay(NULL);
 
 	if (!dpy) {
-		fprintf(stderr, "ERROR: failed to open display!\n");
-		return 1;
+		ERROR("failed to open display!");
+		return 2;
 	}
 
 	screen = DefaultScreen(dpy);
@@ -174,6 +177,7 @@ void statusloop() {
 		writestatus();
 
 		if (!statusContinue) break;
+		sleep(1.);
 	}
 }
 
@@ -183,7 +187,7 @@ void dummysighandler(int signum) { return; }
 #endif
 
 void sighandler(int signum) {
-	getsigcmds(signum-SIGPLUS);
+	getsigcmds(signum - SIGPLUS);
 	writestatus();
 }
 
@@ -197,19 +201,33 @@ void termhandler(int sig) {
 int main(int argc, char** argv) {
 	// Handle command line arguments
 	for (int i = 0; i < argc; ++i) {
-		if (!strcmp("-d", argv[i])) // setting delimiter character?
-			strncpy(delim, argv[++i], delimLen);
+		if (!strcmp("-d", argv[i])) { // setting delimiter character?
+			if (argv[++i] != NULL)
+				strncpy(delim, argv[i++], delimLen);
+			else {
+				ERROR("a character must be specified!");
+				return 1;
+			}
+		}
 		else if (!strcmp("-p", argv[i])) // printing to stdout?
 			writestatus = pstdout;
+		else if (!strcmp("-h", argv[i])) { // wanting to get help info?
+			printf("Usage: %s <options>\n"
+					"<options> may be one of:\n"
+					"-d '<char>'  set delimiter character to <char>\n"
+					"-p           print output to stdout instead\n",
+					argv[0]);
+			return 0;
+		}
 	}
 
 #ifdef HAS_X
-	if (!setupX())
+	if (setupX() == 2)
 		return 1;
 #endif
 
 	delimLen = MIN(delimLen, strlen(delim));
-	delim[delimLen++] = '\0';
+	delim[++delimLen] = '\0';
 	signal(SIGTERM, termhandler);
 	signal(SIGINT, termhandler);
 	statusloop();
