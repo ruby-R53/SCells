@@ -13,7 +13,7 @@ static const Cell cells[] = {
  * sets delimiter between status commands,
  * NULL ('\0') means no delimiter
  */
-static char delim[]  = " | ";
+static char delim[]  = " ~ ";
 static int  delimLen = 3;
 
 /*

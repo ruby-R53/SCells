@@ -40,7 +40,7 @@ void dummysighandler(int num);
 
 void sighandler(int num);
 void getcmds(unsigned int time, unsigned int signal);
-void setupsignals();
+void signalsetup();
 void sighandler(int signum);
 int  getstatus(char *str, char *last);
 void statusloop();
@@ -96,12 +96,12 @@ void getcmds(unsigned int time, unsigned int signal) {
 	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		current = cells + i;
 		if ((current->interval != 0 && time % current->interval == 0) ||
-			(time == -1 || current->signal == signal))
+			time == -1 || current->signal == signal)
 			getcmd(current, statusbar[i]);
 	}
 }
 
-void setupsignals() {
+void signalsetup() {
 #ifndef __OpenBSD__
 	// initialize all real time signals with the dummy handler
     for (int i = SIGRTMIN; i <= SIGRTMAX; ++i)
@@ -158,7 +158,7 @@ void pstdout() {
 }
 
 void statusloop() {
-	setupsignals();
+	signalsetup();
 	int i = 0;
 	getcmds(-1, 0);
 
@@ -192,8 +192,8 @@ int main(int argc, char** argv) {
 	// Handle command line arguments
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp("-d", argv[i])) { // setting delimiter character?
-			if (argv[++i] != NULL)
-				strncpy(delim, argv[i++], delimLen);
+			if (argv[1+i] != NULL)
+				strncpy(delim, argv[++i], delimLen);
 			else {
 				ERROR("a character must be specified!");
 				return 1;
