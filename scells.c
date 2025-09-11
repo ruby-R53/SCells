@@ -96,9 +96,7 @@ void getcmds(unsigned int time, unsigned int signal) {
 	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		current = cells + i;
 		if ((current->interval != 0 && time % current->interval == 0) ||
-			(time == -1 && !signal))
-			getcmd(current, statusbar[i]);
-		else if (current->signal == signal)
+			(time == -1 || current->signal == signal))
 			getcmd(current, statusbar[i]);
 	}
 }
