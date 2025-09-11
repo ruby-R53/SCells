@@ -38,8 +38,7 @@ void dummysighandler(int num);
 #endif
 
 void sighandler(int num);
-void getcmds(int time);
-void getsigcmds(unsigned int signal);
+void getcmds(unsigned int time, unsigned int signal);
 void setupsignals();
 void sighandler(int signum);
 int  getstatus(char *str, char *last);
@@ -90,23 +89,16 @@ void getcmd(const Cell *cell, char *output) {
 	pclose(cmdf);
 }
 
-void getcmds(int time) {
+void getcmds(unsigned int time, unsigned int signal) {
 	const Cell* current;
 
 	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
 		current = cells + i;
 		if ((current->interval != 0 && time % current->interval == 0) ||
-			time == -1)
+			(time == -1 && !signal))
 			getcmd(current, statusbar[i]);
-	}
-}
-
-void getsigcmds(unsigned int signal) {
-	const Cell *current;
-	for (unsigned int i = 0; i < LENGTH(cells); ++i) {
-		current = cells + i;
-		if (current->signal == signal)
-			getcmd(current, statusbar[i]);
+		else if (current->signal == signal)
+				getcmd(current, statusbar[i]);
 	}
 }
 
@@ -121,7 +113,6 @@ void setupsignals() {
 		if (cells[i].signal > 0)
 			signal(SIGMINUS + cells[i].signal, sighandler);
 	}
-
 }
 
 int getstatus(char *str, char *last) {
@@ -170,10 +161,10 @@ void pstdout() {
 void statusloop() {
 	setupsignals();
 	int i = 0;
-	getcmds(-1);
+	getcmds(-1, 0);
 
 	while (1) {
-		getcmds(++i);
+		getcmds(++i, 0);
 		writestatus();
 
 		if (!statusContinue) break;
@@ -187,7 +178,8 @@ void dummysighandler(int signum) { return; }
 #endif
 
 void sighandler(int signum) {
-	getsigcmds(signum - SIGPLUS);
+	//getsigcmds(signum - SIGPLUS);
+	getcmds(0, signum - SIGPLUS);
 	writestatus();
 }
 
