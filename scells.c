@@ -1,8 +1,8 @@
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
-#include<unistd.h>
-#include<signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
 
 typedef struct {
 	char* icon;
@@ -14,7 +14,7 @@ typedef struct {
 #include "config.h"
 
 #if __has_include(<X11/Xlib.h>)
-#include<X11/Xlib.h>
+#include <X11/Xlib.h>
 #define HAS_X
 #endif
 
