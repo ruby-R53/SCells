@@ -54,7 +54,7 @@ void   setroot();
 static int screen;
 static int setupX();
 static void (*writestatus) () = setroot;
-#else         
+#else
 static void (*writestatus) () = pstdout;
 #endif
 
