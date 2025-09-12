@@ -42,19 +42,19 @@ void sighandler(int num);
 void getcmds(unsigned int time, unsigned int signal);
 void signalsetup();
 void sighandler(int signum);
-int  getstatus(char *str, char *last);
+int  getstatus(char* str, char* last);
 void statusloop();
 void termhandler(int sig);
 void pstdout();
 
 #ifdef HAS_X
-static Display *dpy;
+static Display* dpy;
 static Window root;
 void   setroot();
 static int screen;
 static int setupX();
 static void (*writestatus) () = setroot;
-#else
+#else         
 static void (*writestatus) () = pstdout;
 #endif
 
@@ -63,11 +63,11 @@ static char statusstr[2][STATUSLENGTH];
 static int  statusContinue = 1;
 
 // opens process *cmd and stores output in *output
-void getcmd(const Cell *cell, char *output) {
+void getcmd(const Cell* cell, char* output) {
 	// make sure status is the same until output is ready
 	char tempstatus[CMDLENGTH] = {0};
 	strcpy(tempstatus, cell->icon);
-	FILE *cmdf = popen(cell->command, "r");
+	FILE* cmdf = popen(cell->command, "r");
 
 	if (!cmdf)
 		return;
@@ -114,7 +114,7 @@ void signalsetup() {
 	}
 }
 
-int getstatus(char *str, char *last) {
+int getstatus(char* str, char* last) {
 	strcpy(last, str);
 	str[0] = '\0';
 
