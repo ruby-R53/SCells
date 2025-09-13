@@ -30,9 +30,9 @@ typedef struct {
 #define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 #define MIN(a, b)    ((a < b) ? a : b)
 
+// print 'ERROR' in bright red ;)
 #define ERROR(MSG)   \
 	(fprintf(stderr, "\033[1;31mERROR\033[37m:\033[m %s\n", MSG))
-// highlight it with bright red :)
 
 #ifndef __OpenBSD__
 void dummysighandler(int num);
@@ -42,7 +42,7 @@ void sighandler(int num);
 void getcmds(unsigned int time, unsigned int signal);
 void signalsetup();
 void sighandler(int signum);
-int  getstatus(char* str, char* last);
+int  getstatus();
 void statusloop();
 void termhandler(int);
 void pstdout();
@@ -114,22 +114,25 @@ void signalsetup() {
 	}
 }
 
-int getstatus(char* str, char* last) {
-	strcpy(last, str);
+int getstatus() {
+	strcpy(statusstr[1], statusstr[0]);
+
+	char* str = statusstr[0];
 	str[0] = '\0';
 
 	for (unsigned int i = 0; i < LENGTH(cells); ++i)
-		strcat(str, statusbar[i]);
+		strcat(statusstr[0], statusbar[i]);
 
-	str[strlen(str) - strlen(delim)] = '\0';
-	return strcmp(str, last); // 0 if they are the same
+	// terminate our status string properly so that
+	// the program knows where it ends
+	str[strlen(statusstr[0]) - strlen(delim)] = '\0';
+	return strcmp(statusstr[0], statusstr[1]); // 0 if they are the same
 }
 
 #ifdef HAS_X
 void setroot() {
 	// Only set root if text has changed.
-	if (!getstatus(statusstr[0], statusstr[1]))
-		return;
+	if (!getstatus()) return;
 
 	XStoreName(dpy, root, statusstr[0]);
 	XFlush(dpy);
@@ -151,7 +154,7 @@ int setupX() {
 
 void pstdout() {
 	// Only write out if text has changed.
-	if (!getstatus(statusstr[0], statusstr[1])) return;
+	if (!getstatus()) return;
 
 	printf("\r%s", statusstr[0]);
 	fflush(stdout);
@@ -205,7 +208,8 @@ int main(int argc, char** argv) {
 			printf("Usage: %s <options>\n"
 					"<options> may be one of:\n"
 					"-d '<char>'  set delimiter character to <char>\n"
-					"-p           print output to stdout instead\n",
+					"-p           print output to stdout instead\n"
+					"-h           show this help message and quit\n",
 					argv[0]);
 			return 0;
 		}

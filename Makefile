@@ -26,6 +26,9 @@ config:
 clean:
 	rm -f *.o scells
 
+strip:
+	strip -s scells
+
 install: scells
 	mkdir -p ${DESTDIR}${PREFIX}/bin
 	cp -f scells ${DESTDIR}${PREFIX}/bin
