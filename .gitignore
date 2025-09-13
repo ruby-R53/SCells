@@ -1,4 +1,3 @@
-*.o
 config.h
 scells
 nohup.out
