@@ -44,7 +44,7 @@ void signalsetup();
 void sighandler(int signum);
 int  getstatus(char* str, char* last);
 void statusloop();
-void termhandler(int sig);
+void termhandler(int);
 void pstdout();
 
 #ifdef HAS_X
@@ -181,7 +181,7 @@ void sighandler(int signum) {
 	writestatus();
 }
 
-void termhandler(int sig) {
+void termhandler(int) {
 	statusContinue = 0;
 	// add a newline in case we're
 	// printing to stdout
