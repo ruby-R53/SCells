@@ -11,11 +11,11 @@ LDFLAGS := -lX11
 all: options scells
 
 options:
-	@echo "scells build options:"
-	@echo "CC      = ${CC}"
-	@echo "CFLAGS  = ${CFLAGS}"
-	@echo "LDFLAGS = ${LDFLAGS}"
-	@echo "PREFIX  = ${PREFIX}"
+	@echo "scells build options:" \
+		"\nCC      = ${CC}" \
+		"\nCFLAGS  = ${CFLAGS}" \
+		"\nLDFLAGS = ${LDFLAGS}" \
+		"\nPREFIX  = ${PREFIX}"
 
 scells: scells.c config.def.h config
 	${CC} -o scells scells.c ${CFLAGS} ${LDFLAGS}
