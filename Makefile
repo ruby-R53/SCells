@@ -18,7 +18,7 @@ options:
 		"\nPREFIX  = ${PREFIX}"
 
 scells: scells.c config.def.h config
-	${CC} -o scells scells.c ${CFLAGS} ${LDFLAGS}
+	${CC} ${CFLAGS} ${LDFLAGS} scells.c -o scells
 
 config:
 	cp config.def.h $@.h
