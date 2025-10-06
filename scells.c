@@ -213,8 +213,7 @@ int main(int argc, char** argv) {
 	}
 
 #ifdef HAS_X
-	if (Xsetup() == 2)
-		return 1;
+	if (Xsetup() == 2) return 1;
 #endif
 
 	delimLen = MIN(delimLen, strlen(delim));
