@@ -42,18 +42,18 @@ void dummysighandler(int num);
 static void getcmds(unsigned int time, unsigned int signal);
 static void signalsetup();
 static void sighandler(int signum);
-static int  getstatus();
 static void statusloop();
 static void termhandler(int);
 static void pstdout();
+static int  getstatus();
 
 #ifdef HAS_X
 static Display* dpy;
 static Window root;
-void   setroot();
+static void setroot();
+static void (*writestatus) () = setroot;
 static int screen;
 static int Xsetup();
-static void (*writestatus) () = setroot;
 #else
 static void (*writestatus) () = pstdout;
 #endif
