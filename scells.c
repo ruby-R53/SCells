@@ -38,7 +38,6 @@ typedef struct {
 void dummysighandler(int num);
 #endif
 
-void sighandler(int num);
 void getcmds(unsigned int time, unsigned int signal);
 void signalsetup();
 void sighandler(int signum);
@@ -158,6 +157,7 @@ void pstdout() {
 void statusloop() {
 	signalsetup();
 	int i = 0;
+
 	getcmds(-1, 0);
 
 	while (1) {
