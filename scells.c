@@ -52,7 +52,7 @@ static Display* dpy;
 static Window root;
 void   setroot();
 static int screen;
-static int setupX();
+static int Xsetup();
 static void (*writestatus) () = setroot;
 #else
 static void (*writestatus) () = pstdout;
@@ -131,14 +131,11 @@ int getstatus() {
 
 #ifdef HAS_X
 void setroot() {
-	// Only set root if text has changed.
-	if (!getstatus()) return;
-
 	XStoreName(dpy, root, statusstr[0]);
 	XFlush(dpy);
 }
 
-int setupX() {
+int Xsetup() {
 	dpy = XOpenDisplay(NULL);
 
 	if (!dpy) {
@@ -153,9 +150,7 @@ int setupX() {
 #endif
 
 void pstdout() {
-	// Only write out if text has changed.
-	if (!getstatus()) return;
-
+	if (!statusContinue) return;
 	printf("\r%s", statusstr[0]);
 	fflush(stdout);
 }
@@ -167,10 +162,13 @@ void statusloop() {
 
 	while (1) {
 		getcmds(++i, 0);
+		if (!statusContinue) break;
+
+		// only write status if text has changed
+		if (!getstatus()) continue;
 		writestatus();
 
-		if (!statusContinue) break;
-		sleep(1.);
+		sleep(1);
 	}
 }
 
@@ -181,6 +179,7 @@ void dummysighandler(int signum) { return; }
 
 void sighandler(int signum) {
 	getcmds(0, signum - SIGPLUS);
+	if (!getstatus()) return;
 	writestatus();
 }
 
@@ -216,7 +215,7 @@ int main(int argc, char** argv) {
 	}
 
 #ifdef HAS_X
-	if (setupX() == 2)
+	if (Xsetup() == 2)
 		return 1;
 #endif
 
