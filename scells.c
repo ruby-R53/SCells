@@ -149,7 +149,6 @@ int Xsetup() {
 #endif
 
 void pstdout() {
-	if (!statusContinue) return;
 	printf("\r%s", statusstr[0]);
 	fflush(stdout);
 }
