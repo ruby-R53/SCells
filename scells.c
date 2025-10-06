@@ -4,15 +4,6 @@
 #include <unistd.h>
 #include <signal.h>
 
-typedef struct {
-	char* icon;
-	char* command;
-	unsigned int interval;
-	unsigned int signal;
-} Cell;
-
-#include "config.h"
-
 #if __has_include(<X11/Xlib.h>)
 #include <X11/Xlib.h>
 #define HAS_X
@@ -27,24 +18,34 @@ typedef struct {
 #endif
 
 #define LENGTH(X)    (sizeof(X) / sizeof(X[0]))
-#define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 #define MIN(a, b)    ((a < b) ? a : b)
 
 // print 'ERROR' in bright red ;)
 #define ERROR(MSG)   \
 	(fprintf(stderr, "\033[1;31mERROR\033[37m:\033[m %s\n", MSG))
 
+typedef struct {
+	char* icon;
+	char* command;
+	unsigned int interval;
+	unsigned int signal;
+} Cell;
+
+#include "config.h"
+
+#define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
+
 #ifndef __OpenBSD__
 void dummysighandler(int num);
 #endif
 
-void getcmds(unsigned int time, unsigned int signal);
-void signalsetup();
-void sighandler(int signum);
-int  getstatus();
-void statusloop();
-void termhandler(int);
-void pstdout();
+static void getcmds(unsigned int time, unsigned int signal);
+static void signalsetup();
+static void sighandler(int signum);
+static int  getstatus();
+static void statusloop();
+static void termhandler(int);
+static void pstdout();
 
 #ifdef HAS_X
 static Display* dpy;
@@ -68,8 +69,7 @@ void getcmd(const Cell* cell, char* output) {
 	strcpy(tempstatus, cell->icon);
 	FILE* cmdf = popen(cell->command, "r");
 
-	if (!cmdf)
-		return;
+	if (!cmdf) return;
 
 	int i = strlen(cell->icon);
 	fgets(tempstatus + i, CMDLENGTH - delimLen - i, cmdf);
