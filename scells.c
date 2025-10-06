@@ -160,9 +160,8 @@ void statusloop() {
 
 	getcmds(-1, 0);
 
-	while (1) {
+	while (statusContinue) {
 		getcmds(++i, 0);
-		if (!statusContinue) break;
 
 		// only write status if text has changed
 		if (!getstatus()) continue;
