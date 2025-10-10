@@ -31,8 +31,7 @@ strip:
 
 install: scells
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f scells ${DESTDIR}${PREFIX}/bin
-	chmod 755 ${DESTDIR}${PREFIX}/bin/scells
+	install -m 755 scells ${DESTDIR}${PREFIX}/bin
 
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/scells
