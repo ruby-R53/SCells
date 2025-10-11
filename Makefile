@@ -30,10 +30,10 @@ strip:
 	strip -s scells
 
 install: scells
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	install -m 755 scells ${DESTDIR}${PREFIX}/bin
+	mkdir -p ${DESTDIR}/${PREFIX}/bin
+	install -m 755 scells ${DESTDIR}/${PREFIX}/bin
 
 uninstall:
-	rm -f ${DESTDIR}${PREFIX}/bin/scells
+	rm -f ${DESTDIR}/${PREFIX}/bin/scells
 
 .PHONY: all options clean install uninstall
