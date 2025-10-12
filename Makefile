@@ -11,7 +11,8 @@ LDFLAGS := -lX11
 all: options scells
 
 options:
-	@echo "scells build options:" \
+	@echo \
+		"scells build options:" \
 		"\nCC      = ${CC}" \
 		"\nCFLAGS  = ${CFLAGS}" \
 		"\nLDFLAGS = ${LDFLAGS}" \
@@ -29,7 +30,7 @@ clean:
 strip:
 	strip -s scells
 
-install: scells
+install: scells strip
 	mkdir -p ${DESTDIR}/${PREFIX}/bin
 	install -m 755 scells ${DESTDIR}/${PREFIX}/bin
 

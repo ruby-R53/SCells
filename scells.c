@@ -9,7 +9,7 @@
 #define HAS_X
 #endif
 
-#ifdef __OpenBSD__
+#if !__linux__
 #define SIGPLUS	     SIGUSR1+1
 #define SIGMINUS     SIGUSR1-1
 #else
@@ -19,10 +19,6 @@
 
 #define LENGTH(X)    (sizeof(X) / sizeof(X[0]))
 #define MIN(a, b)    ((a < b) ? a : b)
-
-// print 'ERROR' in bright red ;)
-#define ERROR(MSG)   \
-	(fprintf(stderr, "\033[1;31mERROR\033[37m:\033[m %s\n", MSG))
 
 typedef struct {
 	char* icon;
@@ -35,27 +31,27 @@ typedef struct {
 
 #define STATUSLENGTH (LENGTH(cells) * CMDLENGTH + 1)
 
-#ifndef __OpenBSD__
+#if __linux__
 void dummysighandler(int num);
 #endif
 
 static void getcmds(unsigned int time, unsigned int signal);
-static void signalsetup();
+static void signalsetup(void);
 static void sighandler(int signum);
-static void statusloop();
-static void termhandler(int);
-static void pstdout();
-static int  getstatus();
+static void statusloop(void);
+static void termhandler(int sig);
+static void pstdout(void);
+static int  getstatus(void);
 
 #ifdef HAS_X
 static Display* dpy;
 static Window root;
-static void setroot();
-static void (*writestatus) () = setroot;
+static void setroot(void);
+static void (*writestatus) (void) = setroot;
 static int screen;
-static int Xsetup();
+static int Xsetup(void);
 #else
-static void (*writestatus) () = pstdout;
+static void (*writestatus) (void) = pstdout;
 #endif
 
 static char statusbar[LENGTH(cells)][CMDLENGTH] = {0};
@@ -100,8 +96,8 @@ void getcmds(unsigned int time, unsigned int signal) {
 	}
 }
 
-void signalsetup() {
-#ifndef __OpenBSD__
+void signalsetup(void) {
+#if __linux__
 	// initialize all real time signals with the dummy handler
     for (int i = SIGRTMIN; i <= SIGRTMAX; ++i)
         signal(i, dummysighandler);
@@ -113,7 +109,7 @@ void signalsetup() {
 	}
 }
 
-int getstatus() {
+int getstatus(void) {
 	strcpy(statusstr[1], statusstr[0]);
 
 	char* str = statusstr[0];
@@ -129,16 +125,16 @@ int getstatus() {
 }
 
 #ifdef HAS_X
-void setroot() {
+void setroot(void) {
 	XStoreName(dpy, root, statusstr[0]);
 	XFlush(dpy);
 }
 
-int Xsetup() {
+int Xsetup(void) {
 	dpy = XOpenDisplay(NULL);
 
 	if (!dpy) {
-		ERROR("failed to open display!");
+		fprintf(stderr, "SCells: failed to open display");
 		return 2;
 	}
 
@@ -148,12 +144,12 @@ int Xsetup() {
 }
 #endif
 
-void pstdout() {
+void pstdout(void) {
 	printf("\r%s", statusstr[0]);
 	fflush(stdout);
 }
 
-void statusloop() {
+void statusloop(void) {
 	signalsetup();
 	int i = 0;
 
@@ -170,7 +166,7 @@ void statusloop() {
 	}
 }
 
-#ifndef __OpenBSD__
+#if __linux__
 // used to initialize all real-time signals
 void dummysighandler(int signum) { return; }
 #endif
@@ -181,7 +177,7 @@ void sighandler(int signum) {
 	writestatus();
 }
 
-void termhandler(int) {
+void termhandler(int sig) {
 	statusContinue = 0;
 	// add a newline in case we're
 	// printing to stdout
@@ -195,7 +191,7 @@ int main(int argc, char** argv) {
 			if (argv[1+i] != NULL)
 				strncpy(delim, argv[++i], delimLen);
 			else {
-				ERROR("a character must be specified!");
+				fprintf(stderr, "SCells: a character must be specified");
 				return 1;
 			}
 		}
@@ -217,9 +213,11 @@ int main(int argc, char** argv) {
 #endif
 
 	delimLen = MIN(delimLen, strlen(delim));
-	delim[++delimLen] = '\0';
+	delim[delimLen++] = '\0';
+
 	signal(SIGTERM, termhandler);
 	signal(SIGINT, termhandler);
+
 	statusloop();
 
 #ifdef HAS_X
